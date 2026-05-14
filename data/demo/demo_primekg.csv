@@ -1,0 +1,10 @@
+source_name,source_type,target_name,target_type,relation,evidence
+heart failure,disease,cardiovascular disease,disease,associated_with,"PrimeKG-style demo evidence: heart failure is clinically related to cardiovascular disease and may support eligibility reasoning for cardiac conditions."
+heart failure,disease,hypertension,disease,comorbid_with,"PrimeKG-style demo evidence: heart failure and hypertension may co-occur and can be relevant when interpreting cardiovascular eligibility criteria."
+hypertension,disease,cardiovascular disease,disease,risk_factor_for,"PrimeKG-style demo evidence: hypertension is a cardiovascular risk factor and can support interpretation of arterial hypertension criteria."
+stroke,disease,transient ischemic attack,disease,related_to,"PrimeKG-style demo evidence: stroke and transient ischemic attack are related cerebrovascular events and may be relevant to exclusion or inclusion criteria."
+renal impairment,disease,creatinine,biomarker,indicated_by,"PrimeKG-style demo evidence: elevated serum creatinine can indicate renal impairment and may support numeric laboratory eligibility assessment."
+anemia,disease,hemoglobin,biomarker,indicated_by,"PrimeKG-style demo evidence: low hemoglobin can indicate anemia and may support laboratory-based eligibility reasoning."
+apixaban,drug,anticoagulant therapy,treatment,is_a,"PrimeKG-style demo evidence: apixaban is an anticoagulant and may be relevant to trial criteria involving anticoagulation."
+warfarin,drug,anticoagulant therapy,treatment,is_a,"PrimeKG-style demo evidence: warfarin is an anticoagulant and may be relevant to medication-related eligibility criteria."
+antihypertensive therapy,treatment,hypertension,disease,treats,"PrimeKG-style demo evidence: antihypertensive therapy is used to treat hypertension and may support matching for treated arterial hypertension."

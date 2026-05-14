@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clinical-Trial Matching Public Demo</title>
+
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --card: #ffffff;
+        --text: #172033;
+        --muted: #667085;
+        --line: #d9e1ec;
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --soft: #eef4ff;
+        --success: #16a34a;
+        --danger: #dc2626;
+        --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+        --radius: 20px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 28%),
+          radial-gradient(circle at top right, rgba(22, 163, 74, 0.1), transparent 24%),
+          var(--bg);
+        color: var(--text);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      .hero {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        align-items: center;
+        margin-bottom: 24px;
+        padding: 28px;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(217, 225, 236, 0.9);
+        box-shadow: var(--shadow);
+        border-radius: 28px;
+        backdrop-filter: blur(16px);
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 8px;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.08;
+      }
+
+      h2 {
+        margin-bottom: 0;
+        font-size: 20px;
+      }
+
+      .hero-subtitle {
+        margin: 0;
+        color: var(--muted);
+        max-width: 760px;
+        line-height: 1.6;
+      }
+
+      .hero-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 0 0 auto;
+        padding: 10px 14px;
+        background: var(--soft);
+        color: var(--primary-dark);
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--success);
+        box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.12);
+      }
+
+      body[data-mode="busy"] .status-dot {
+        background: #f59e0b;
+        box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.15);
+      }
+
+      body[data-mode="error"] .status-dot {
+        background: var(--danger);
+        box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.12);
+      }
+
+      .command-surface {
+        display: grid;
+        grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+        gap: 22px;
+        align-items: stretch;
+        margin-bottom: 22px;
+      }
+
+      .card,
+      .panel {
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid rgba(217, 225, 236, 0.95);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+      }
+
+      .input-card,
+      .answer-card {
+        padding: 24px;
+      }
+
+      .field {
+        margin-bottom: 18px;
+      }
+
+      .field-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      label,
+      .helper-label {
+        font-weight: 800;
+        font-size: 14px;
+      }
+
+      .helper-text,
+      .input-help {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      textarea,
+      select {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+        color: var(--text);
+        padding: 13px 14px;
+        font: inherit;
+        outline: none;
+      }
+
+      textarea:focus,
+      select:focus {
+        border-color: rgba(37, 99, 235, 0.7);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 110px;
+      }
+
+      .examples {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      .example-chip,
+      .ghost-button,
+      .copy-button {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--text);
+        border-radius: 999px;
+        padding: 8px 11px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .example-chip:hover,
+      .ghost-button:hover,
+      .copy-button:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .note-preview {
+        margin-top: -4px;
+        margin-bottom: 18px;
+        padding: 14px;
+        background: #f8fafc;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .note-preview strong {
+        display: block;
+        color: var(--text);
+      }
+
+      .note-preview span {
+        font-size: 13px;
+      }
+
+      .run-button {
+        width: 100%;
+        border: 0;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 15px 18px;
+        font: inherit;
+        font-weight: 900;
+        cursor: pointer;
+        box-shadow: 0 14px 28px rgba(37, 99, 235, 0.22);
+      }
+
+      .run-button:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
+
+      .answer-card {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+      }
+
+      .answer-topline,
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .answer-value {
+        margin: 6px 0 16px;
+        padding: 24px;
+        background: var(--soft);
+        color: var(--primary-dark);
+        border-radius: 20px;
+        font-size: 44px;
+        font-weight: 950;
+        line-height: 1;
+        min-height: 98px;
+        display: flex;
+        align-items: center;
+      }
+
+      .answer-value.pending {
+        color: var(--muted);
+        font-size: 28px;
+      }
+
+      .answer-meta,
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 7px 10px;
+        background: #f1f5f9;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .run-steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .run-steps span {
+        text-align: center;
+        padding: 10px;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .run-steps span.done {
+        background: rgba(22, 163, 74, 0.1);
+        color: #15803d;
+      }
+
+      .run-steps span.active {
+        background: rgba(245, 158, 11, 0.12);
+        color: #b45309;
+      }
+
+      .run-steps span.error {
+        background: rgba(220, 38, 38, 0.1);
+        color: #b91c1c;
+      }
+
+      .raw-response {
+        margin-top: auto;
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+      }
+
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #0f172a;
+        color: #e5e7eb;
+        padding: 14px;
+        border-radius: 14px;
+        max-height: 220px;
+        overflow: auto;
+      }
+
+      .panel {
+        padding: 24px;
+        margin-bottom: 22px;
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .flow-step {
+        padding: 18px;
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 18px;
+      }
+
+      .flow-step.primary {
+        background: var(--soft);
+        border-color: rgba(37, 99, 235, 0.24);
+      }
+
+      .step-label {
+        color: var(--primary);
+        font-weight: 900;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+
+      ol {
+        padding-left: 20px;
+        margin: 0;
+      }
+
+      li {
+        margin: 8px 0;
+        line-height: 1.5;
+      }
+
+      .content-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+        gap: 22px;
+      }
+
+      .chunk-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .chunk-card {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .chunk-topline {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .rank {
+        color: var(--primary);
+        font-weight: 950;
+      }
+
+      .chunk-length {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .chunk-preview {
+        margin: 0;
+        color: #334155;
+        line-height: 1.65;
+      }
+
+      .evidence-box {
+        margin-top: 18px;
+        padding: 18px;
+        border-radius: 18px;
+        background: #fff;
+        border: 1px solid var(--line);
+        line-height: 1.65;
+      }
+
+      .empty-state {
+        padding: 20px;
+        border: 1px dashed var(--line);
+        color: var(--muted);
+        border-radius: 16px;
+        background: #f8fafc;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 860px) {
+        .hero,
+        .command-surface,
+        .content-grid,
+        .flow {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .answer-value {
+          font-size: 34px;
+        }
+      }
+    </style>
+
+    <script src="./config.js"></script>
+  </head>
+
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Clinical Trial Eligibility QA</p>
+          <h1>Clinical-Trial Matching Public Demo</h1>
+          <p class="hero-subtitle">
+            A public demonstration of query optimization, evidence retrieval,
+            PrimeKG-style knowledge support, and LLM-based eligibility answer generation.
+          </p>
+        </div>
+
+        <div class="hero-status">
+          <span class="status-dot"></span>
+          <span id="statusLine">Ready</span>
+        </div>
+      </header>
+
+      <section class="command-surface">
+        <div class="card input-card">
+          <div class="field">
+            <div class="field-head">
+              <label for="questionInput">Eligibility Question</label>
+              <button id="clearQuestionButton" class="ghost-button" type="button">Clear</button>
+            </div>
+
+            <textarea
+              id="questionInput"
+              rows="4"
+              placeholder="Please enter an eligibility question"
+            ></textarea>
+
+            <p class="input-help">
+              The system answers this question against the selected synthetic demo note.
+            </p>
+          </div>
+
+          <div class="field">
+            <div class="field-head">
+              <span class="helper-label">Suggested Questions</span>
+              <span class="helper-text">Click one to fill the question box</span>
+            </div>
+            <div class="examples" id="exampleQuestions"></div>
+          </div>
+
+          <div class="field">
+            <div class="field-head">
+              <label for="noteSelect">Patient Note</label>
+              <button id="randomNoteButton" class="ghost-button" type="button">Random Note</button>
+            </div>
+            <select id="noteSelect"></select>
+          </div>
+
+          <div class="note-preview" id="notePreview">Loading notes...</div>
+
+          <button id="runButton" class="run-button" type="button">Run Matching</button>
+        </div>
+
+        <aside class="card answer-card">
+          <div class="answer-topline">
+            <p class="eyebrow">Final Answer</p>
+            <button id="copyAnswerButton" class="copy-button" type="button" disabled>Copy</button>
+          </div>
+
+          <div id="answerText" class="answer-value pending">Ready</div>
+
+          <div class="answer-meta" id="answerMeta">
+            <span class="pill">No run yet</span>
+          </div>
+
+          <div class="run-steps" id="runSteps">
+            <span>Query</span>
+            <span>Retrieve</span>
+            <span>Answer</span>
+          </div>
+
+          <details class="raw-response" id="rawResponse">
+            <summary>Raw model response</summary>
+            <pre id="rawPrediction">No response yet.</pre>
+          </details>
+        </aside>
+      </section>
+
+      <section class="panel query-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">Query Optimization</p>
+            <h2>Question rewrite and retrieval intent</h2>
+          </div>
+        </div>
+
+        <div class="flow" id="queryFlow">
+          <div class="empty-state">Run a match to see the optimized query.</div>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel chunks-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Top Chunks</p>
+              <h2>Retrieved note evidence</h2>
+            </div>
+            <span class="pill" id="chunkCount">0 chunks</span>
+          </div>
+
+          <div class="chunk-list" id="chunkList">
+            <div class="empty-state">Retrieved evidence will appear here.</div>
+          </div>
+        </article>
+
+        <article class="panel knowledge-panel hidden" id="primekgPanel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Supporting Knowledge</p>
+              <h2>PrimeKG-style evidence</h2>
+            </div>
+          </div>
+
+          <div id="primekgBox" class="evidence-box"></div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const API_BASE = window.API_BASE_URL || "http://127.0.0.1:8766";
+
+      const $ = (selector) => document.querySelector(selector);
+
+      const EXAMPLE_QUESTIONS = [
+        "Does the note describe the patient as having heart failure?",
+        "Does the note describe the patient as having arterial hypertension on treatment?",
+        "Does the note describe the patient as ever having a stroke or transient ischemic attack?",
+        "What is the highest serum creatinine mentioned in the note?",
+        "What is the lowest hemoglobin mentioned in the note?"
+      ];
+
+      let currentAnswer = "";
+      let notes = [];
+
+      function setStatus(text, mode = "idle") {
+        $("#statusLine").textContent = text;
+        document.body.dataset.mode = mode;
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      function setSteps(mode) {
+        const steps = Array.from(document.querySelectorAll("#runSteps span"));
+
+        steps.forEach((step, index) => {
+          step.className = "";
+
+          if (mode === "busy") {
+            step.classList.add(index === 0 ? "active" : "pending");
+          } else if (mode === "done") {
+            step.classList.add("done");
+          } else if (mode === "error") {
+            step.classList.add(index === 0 ? "error" : "pending");
+          }
+        });
+      }
+
+      function renderExamples() {
+        $("#exampleQuestions").innerHTML = EXAMPLE_QUESTIONS.map(
+          (question) =>
+            `<button class="example-chip" type="button">${escapeHtml(question)}</button>`
+        ).join("");
+
+        document.querySelectorAll(".example-chip").forEach((button) => {
+          button.addEventListener("click", () => {
+            $("#questionInput").value = button.textContent;
+            $("#questionInput").focus();
+          });
+        });
+      }
+
+      async function loadNotes() {
+        const response = await fetch(`${API_BASE}/api/notes`);
+        const payload = await response.json();
+
+        notes = payload.notes || [];
+
+        $("#noteSelect").innerHTML = notes
+          .map((note) => {
+            const label = `${note.note_id} | HADM ${note.hadm_id}`;
+            return `<option value="${escapeHtml(note.note_id)}">${escapeHtml(label)}</option>`;
+          })
+          .join("");
+
+        renderNotePreview();
+      }
+
+      function selectedNote() {
+        const noteId = $("#noteSelect").value;
+        return notes.find((note) => note.note_id === noteId);
+      }
+
+      function renderNotePreview() {
+        const note = selectedNote();
+
+        $("#notePreview").innerHTML = note
+          ? `
+            <strong>${escapeHtml(note.note_id)}</strong>
+            <span>HADM ${escapeHtml(note.hadm_id)}</span>
+            <p>${escapeHtml(note.preview || "")}</p>
+          `
+          : "No note selected.";
+      }
+
+      function renderQueryOptimization(qopt) {
+        const subQueries = (qopt.sub_queries || [])
+          .map((item, index) => `<li><strong>${index + 1}.</strong> ${escapeHtml(item)}</li>`)
+          .join("");
+
+        $("#queryFlow").innerHTML = `
+          <article class="flow-step primary">
+            <div class="step-label">Rewritten Query</div>
+            <p>${escapeHtml(qopt.rewritten_query || "-")}</p>
+          </article>
+
+          <article class="flow-step">
+            <div class="step-label">Sub-Queries</div>
+            <ol>${subQueries}</ol>
+          </article>
+        `;
+      }
+
+      function renderChunks(chunks) {
+        $("#chunkCount").textContent = `${chunks.length} chunks`;
+
+        $("#chunkList").innerHTML = chunks.length
+          ? chunks
+              .map((chunk) => {
+                const text = String(chunk.text || "").trim();
+                return `
+                  <article class="chunk-card">
+                    <div class="chunk-topline">
+                      <span class="rank">#${chunk.rank}</span>
+                      <span class="chunk-length">${text.length.toLocaleString()} chars</span>
+                    </div>
+                    <p class="chunk-preview">${escapeHtml(text)}</p>
+                  </article>
+                `;
+              })
+              .join("")
+          : '<div class="empty-state">No retrieved chunks returned.</div>';
+      }
+
+      function renderPrimeKg(result) {
+        const primekg = result.primekg || {};
+        const evidence = String(primekg.evidence || "").trim();
+        const panel = $("#primekgPanel");
+
+        if (!evidence) {
+          panel.classList.add("hidden");
+          $("#primekgBox").innerHTML = "";
+          return;
+        }
+
+        panel.classList.remove("hidden");
+
+        const entities = [
+          ...(primekg.diseases || []),
+          ...(primekg.drugs || [])
+        ];
+
+        const tags = entities
+          .map((item) => `<span class="pill">${escapeHtml(item)}</span>`)
+          .join("");
+
+        $("#primekgBox").innerHTML = `
+          ${tags ? `<div class="tag-row">${tags}</div>` : ""}
+          <p>${escapeHtml(evidence)}</p>
+        `;
+      }
+
+      function renderResult(result) {
+        currentAnswer = result.answer || "-";
+
+        $("#answerText").textContent = currentAnswer;
+        $("#answerText").classList.remove("pending");
+        $("#copyAnswerButton").disabled = false;
+
+        const questionType =
+          result.question_type === "yes" ? "Boolean" : "Numeric";
+
+        const answerMethod = {
+          llm_api: "LLM API",
+          rule_based_public_demo: "Rule-based demo",
+          rule_numeric_extraction: "Rule extraction",
+          llm_json: "LLM JSON",
+          llm: "LLM"
+        }[result.answer_source] || result.answer_source || "Unknown";
+
+        $("#answerMeta").innerHTML = `
+          <span class="pill">Question type: ${escapeHtml(questionType)}</span>
+          <span class="pill">Method: ${escapeHtml(answerMethod)}</span>
+          <span class="pill">Matched note: ${escapeHtml(result.note?.note_id || "-")}</span>
+          <span class="pill">HADM: ${escapeHtml(result.note?.hadm_id || "-")}</span>
+        `;
+
+        $("#rawPrediction").textContent =
+          result.raw_prediction || "Answered without an LLM call.";
+
+        renderQueryOptimization(result.query_optimization || {});
+        renderChunks(result.top_chunks || []);
+        renderPrimeKg(result);
+      }
+
+      async function runMatch() {
+        const question = $("#questionInput").value.trim();
+
+        if (!question) {
+          setStatus("Enter a question before running matching.", "error");
+          setSteps("error");
+          return;
+        }
+
+        $("#runButton").disabled = true;
+        $("#runButton").textContent = "Running...";
+        $("#answerText").textContent = "Running";
+        $("#answerText").classList.add("pending");
+        $("#copyAnswerButton").disabled = true;
+
+        setStatus("Running match pipeline...", "busy");
+        setSteps("busy");
+
+        try {
+          const response = await fetch(`${API_BASE}/api/match`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              question,
+              note_id: $("#noteSelect").value,
+              include_primekg: true
+            })
+          });
+
+          const payload = await response.json();
+
+          if (!response.ok) {
+            throw new Error(payload.error || "Match request failed.");
+          }
+
+          renderResult(payload);
+          setStatus("Match complete", "done");
+          setSteps("done");
+        } catch (error) {
+          setStatus(error.message, "error");
+          setSteps("error");
+        } finally {
+          $("#runButton").disabled = false;
+          $("#runButton").textContent = "Run Matching";
+        }
+      }
+
+      $("#runButton").addEventListener("click", runMatch);
+      $("#noteSelect").addEventListener("change", renderNotePreview);
+
+      $("#clearQuestionButton").addEventListener("click", () => {
+        $("#questionInput").value = "";
+        $("#questionInput").focus();
+      });
+
+      $("#randomNoteButton").addEventListener("click", () => {
+        if (!notes.length) return;
+
+        const note = notes[Math.floor(Math.random() * notes.length)];
+        $("#noteSelect").value = note.note_id;
+        renderNotePreview();
+      });
+
+      $("#copyAnswerButton").addEventListener("click", async () => {
+        if (!currentAnswer) return;
+
+        await navigator.clipboard.writeText(currentAnswer);
+        setStatus("Answer copied", "done");
+      });
+
+      $("#questionInput").addEventListener("keydown", (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+          runMatch();
+        }
+      });
+
+      renderExamples();
+
+      loadNotes()
+        .then(() => {
+          setStatus("Ready");
+          setSteps("idle");
+        })
+        .catch((error) => {
+          setStatus(error.message, "error");
+          setSteps("error");
+        });
+    </script>
+  </body>
+</html>
