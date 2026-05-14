@@ -828,7 +828,7 @@
 
       function renderQueryOptimization(qopt) {
         const subQueries = (qopt.sub_queries || [])
-          .map((item, index) => `<li><strong>${index + 1}.</strong> ${escapeHtml(item)}</li>`)
+          .map((item) => `<li>${escapeHtml(item)}</li>`)
           .join("");
 
         $("#queryFlow").innerHTML = `
