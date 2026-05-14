@@ -1,0 +1,4 @@
+note_id,hadm_id,text
+demo_001,10001,"Synthetic demo note: the patient has a history of heart failure and hypertension. No identifiable information is included."
+demo_002,10002,"Synthetic demo note: the record mentions serum creatinine 1.8 mg/dL and hemoglobin 9.7 g/dL."
+demo_003,10003,"Synthetic demo note: the patient has no documented history of stroke or transient ischemic attack."
